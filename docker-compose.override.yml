@@ -1,0 +1,7 @@
+# Local override: official minio/minio + minio/mc images are no longer
+# pullable from Docker Hub (community edition went source-only).
+services:
+  minio:
+    image: pgsty/minio:latest
+  minio-init:
+    image: quay.io/minio/mc:latest

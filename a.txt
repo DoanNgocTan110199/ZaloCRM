@@ -1,0 +1,12 @@
+docker compose build app
+docker tag 192.168.188.225:5000/zalo-crm-app:latest 192.168.188.225:5000/zalo-crm-app:latest
+docker push 192.168.188.225:5000/zalo-crm-app:latest
+docker compose build app
+docker compose push app
+docker pull 192.168.188.225:5000/zalo-crm-app:latest
+
+
+docker exec zalo-crm-app npx prisma migrate deploy
+docker compose restart app
+
+docker exec zalo-crm-app ls prisma/migrations

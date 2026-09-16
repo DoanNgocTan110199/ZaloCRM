@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   app:
+    image: ${DOCKER_REGISTRY:-192.168.188.225:5000}/zalo-crm-app:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -111,7 +112,8 @@ services:
     # profiles: redis  ← REMOVED M1 2026-06-01: Redis là dependency cứng của BullMQ
 
   minio:
-    image: minio/minio:latest
+    # minio/minio trên Docker Hub không còn pull được (CE source-only).
+    image: pgsty/minio:latest
     container_name: zalo-crm-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -142,7 +144,8 @@ services:
       retries: 3
 
   minio-init:
-    image: minio/mc:latest
+    # minio/mc trên Docker Hub không còn pull được → dùng quay.io.
+    image: quay.io/minio/mc:latest
     container_name: zalo-crm-minio-init
     depends_on:
       minio:
