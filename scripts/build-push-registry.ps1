@@ -1,12 +1,11 @@
-# Build image app rồi push lên Docker registry nội bộ.
+# Build app image and push to private Docker registry.
 #
-# Dùng:
+# Usage:
 #   .\scripts\build-push-registry.ps1
 #   .\scripts\build-push-registry.ps1 -Tag v1.2.3
 #   .\scripts\build-push-registry.ps1 -Registry 192.168.188.225:5000 -Tag latest
 #
-# Yêu cầu: Docker Desktop đã thêm registry vào insecure-registries
-# (Settings → Docker Engine), ví dụ:
+# Requirement: Docker Desktop insecure-registries must include the registry, e.g.
 #   "insecure-registries": ["192.168.188.225:5000"]
 
 param(
@@ -21,16 +20,16 @@ Set-Location (Join-Path $PSScriptRoot "..")
 
 $Image = "${Registry}/${Name}:${Tag}"
 
-Write-Host "▶ Registry : $Registry"
-Write-Host "▶ Image    : $Image"
+Write-Host ">> Registry : $Registry"
+Write-Host ">> Image    : $Image"
 Write-Host ""
 
-# Kiểm tra registry reachable
+# Check registry reachable
 try {
   $null = Invoke-WebRequest -Uri "http://${Registry}/v2/" -UseBasicParsing -TimeoutSec 5
-  Write-Host "✓ Registry reachable"
+  Write-Host "OK Registry reachable"
 } catch {
-  Write-Warning "Không ping được http://${Registry}/v2/ — kiểm tra mạng / insecure-registries."
+  Write-Warning "Cannot reach http://${Registry}/v2/ - check network / insecure-registries."
 }
 
 $env:DOCKER_REGISTRY = $Registry
@@ -39,14 +38,14 @@ $env:IMAGE_TAG = $Tag
 $buildArgs = @("compose", "build", "app")
 if ($NoCache) { $buildArgs += "--no-cache" }
 
-Write-Host "▶ Building..."
+Write-Host ">> Building..."
 docker @buildArgs
-if ($LASTEXITCODE -ne 0) { throw "docker compose build thất bại (exit $LASTEXITCODE)" }
+if ($LASTEXITCODE -ne 0) { throw "docker compose build failed (exit $LASTEXITCODE)" }
 
-Write-Host "▶ Pushing $Image ..."
+Write-Host ">> Pushing $Image ..."
 docker compose push app
-if ($LASTEXITCODE -ne 0) { throw "docker compose push thất bại (exit $LASTEXITCODE)" }
+if ($LASTEXITCODE -ne 0) { throw "docker compose push failed (exit $LASTEXITCODE)" }
 
 Write-Host ""
-Write-Host "✓ Done: $Image"
-Write-Host "  Pull trên máy khác: docker pull $Image"
+Write-Host "OK Done: $Image"
+Write-Host "  Pull elsewhere: docker pull $Image"

@@ -36,6 +36,7 @@ function isLicensed(): boolean {
 
 export async function brandingRoutes(app: FastifyInstance) {
   app.get('/api/v1/branding', async () => {
-    return { hideAttribution: isLicensed() };
+    // return { hideAttribution: isLicensed() };
+    return { hideAttribution: true };
   });
 }
